@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: cora-postgres
+    environment:
+      POSTGRES_DB: cora
+      POSTGRES_USER: cora
+      POSTGRES_PASSWORD: cora
+    ports:
+      - "5433:5432"
+    volumes:
+      - cora_pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init-extensions.sql:/docker-entrypoint-initdb.d/init-extensions.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cora -d cora"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  cora_pgdata:
