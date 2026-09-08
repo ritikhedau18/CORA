@@ -54,7 +54,7 @@ public class SecurityConfig {
                                 response.setStatus(HttpStatus.NO_CONTENT.value()))
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
-                        .deleteCookies("DEVPILOT_SESSION"));
+                        .deleteCookies("CORA_SESSION"));
 
         return http.build();
     }
