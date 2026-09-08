@@ -7,6 +7,7 @@ import com.cora.backend.dto.RepositoryResponse;
 import com.cora.backend.entity.Repository;
 import com.cora.backend.security.CurrentUser;
 import com.cora.backend.services.RepoService;
+import com.cora.backend.services.indexing.IndexingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +26,7 @@ public class RepoController {
     private final CurrentUser currentUser;
     private final RepoService repoService;
 
-    //private final IndexingService indexingService;
+    private final IndexingService indexingService;
 
     @GetMapping
     public List<RepositoryResponse> list(
@@ -43,13 +44,13 @@ public class RepoController {
         return repoService.toResponse(repoService.requireOwned(id, userId));
     }
 
-//    @PostMapping("/{id}/index")
-//    public ResponseEntity<RepositoryResponse> index(@PathVariable UUID id) {
-//        UUID userId = currentUser.require().getId();
-//        Repository repo = indexingService.startIndexing(id, userId);
-//        indexingService.indexAsync(id, userId);
-//        return ResponseEntity.status(HttpStatus.ACCEPTED).body(repoService.toResponse(repo));
-//    }
+    @PostMapping("/{id}/index")
+    public ResponseEntity<RepositoryResponse> index(@PathVariable UUID id) {
+        UUID userId = currentUser.require().getId();
+        Repository repo = indexingService.startIndexing(id, userId);
+        indexingService.indexAsync(id, userId);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body(repoService.toResponse(repo));
+    }
 
     @GetMapping("/{id}/status")
     public IndexStatusResponse status(@PathVariable UUID id) {
