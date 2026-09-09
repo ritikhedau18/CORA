@@ -213,10 +213,6 @@ CORA/
 - [ ] Add automated tests around chunking and citation mapping
 - [ ] Support additional LLM providers beyond OpenAI
 
-## License
-
-_Add a license (MIT, Apache-2.0, etc.) if you intend this to be an open-source project._
-
 ---
 
 <div align="center">
