@@ -218,7 +218,7 @@ export function BrandMark({ className }: { className?: string }) {
       )}
     >
       <CoraIcon className="size-8 rounded-[10px]" />
-      <span className="font-heading text-[1.05rem] leading-none">Cora</span>
+      <span className="font-heading text-[1.05rem] leading-none">CORA</span>
     </div>
   );
 }

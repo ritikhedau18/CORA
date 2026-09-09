@@ -1,9 +1,9 @@
 "use client";
-
+ 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { ArrowLeft } from "lucide-react";
-
+ 
 import { ChatComposer } from "@/components/chat/chat-composer";
 import { ChatMessages } from "@/components/chat/chat-messages";
 import { ChatSidebar } from "@/components/chat/chat-sidebar";
@@ -18,7 +18,7 @@ import {
   useStreamChat,
 } from "@/hooks/use-chat";
 import { useIndexStatus, useRepository } from "@/hooks/use-repos";
-
+ 
 export function ChatView({ repoId }: { repoId: string }) {
   const repoQuery = useRepository(repoId);
   const isIndexing = repoQuery.data?.indexStatus === "INDEXING";
@@ -26,24 +26,25 @@ export function ChatView({ repoId }: { repoId: string }) {
     repoId,
     isIndexing || repoQuery.data?.indexStatus === "PENDING"
   );
-
+ 
   const indexStatus =
     statusQuery.data?.indexStatus ?? repoQuery.data?.indexStatus;
   const ready = indexStatus === "READY";
-
+ 
   const sessionsQuery = useChatSessions(repoId, ready);
   const createSession = useCreateChatSession(repoId);
   const [selectedSessionId, setSelectedSessionId] = useState<string | null>(
     null
   );
   const autoCreateRef = useRef(false);
-
+ 
   const sessionId =
     selectedSessionId ?? sessionsQuery.data?.[0]?.id ?? null;
-
+ 
   const messagesQuery = useChatMessages(sessionId);
   const { send, stop, streaming, streamText } = useStreamChat(sessionId);
-
+  const isThinking = streaming && !streamText;
+ 
   useEffect(() => {
     if (!ready || sessionsQuery.isLoading) return;
     if (sessionsQuery.data && sessionsQuery.data.length > 0) return;
@@ -54,7 +55,7 @@ export function ChatView({ repoId }: { repoId: string }) {
     ) {
       return;
     }
-
+ 
     autoCreateRef.current = true;
     createSession.mutate(undefined, {
       onSuccess: (session) => setSelectedSessionId(session.id),
@@ -69,7 +70,7 @@ export function ChatView({ repoId }: { repoId: string }) {
     sessionsQuery.data,
     createSession,
   ]);
-
+ 
   if (repoQuery.isLoading) {
     return (
       <AppShell title="Loading chat…">
@@ -80,7 +81,7 @@ export function ChatView({ repoId }: { repoId: string }) {
       </AppShell>
     );
   }
-
+ 
   if (repoQuery.isError || !repoQuery.data) {
     return (
       <AppShell title="Repository unavailable">
@@ -93,9 +94,9 @@ export function ChatView({ repoId }: { repoId: string }) {
       </AppShell>
     );
   }
-
+ 
   const repo = repoQuery.data;
-
+ 
   return (
     <AppShell
       title={repo.fullName}
@@ -125,7 +126,7 @@ export function ChatView({ repoId }: { repoId: string }) {
           sessionId={sessionId}
           onSelectSession={setSelectedSessionId}
         />
-
+ 
         <section className="flex min-h-[70vh] min-w-0 flex-1 flex-col">
           {!ready ? (
             <IndexingState repo={repo} status={statusQuery.data} />
@@ -135,6 +136,7 @@ export function ChatView({ repoId }: { repoId: string }) {
                 repo={repo}
                 messages={messagesQuery.data ?? []}
                 streamText={streamText}
+                isThinking={isThinking}
                 isLoading={messagesQuery.isLoading}
               />
               <ChatComposer

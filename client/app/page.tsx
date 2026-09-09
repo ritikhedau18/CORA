@@ -33,8 +33,13 @@ export default function HomePage() {
           </div>
           <div className="space-y-3">
             <h1 className="font-heading text-4xl font-semibold tracking-tight sm:text-5xl">
-              Cora
+              CORA
             </h1>
+
+            <p className="text-base font-medium text-foreground">
+              CODEBASE ORIENTED RETRIEVAL ASSISTANT
+            </p>
+
             <p className="text-lg text-muted-foreground text-balance">
               Connect GitHub, index any repository, and chat with your codebase
               using retrieval-augmented answers and citations.

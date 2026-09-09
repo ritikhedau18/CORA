@@ -1,8 +1,8 @@
 "use client";
-
+ 
 import { Bot, UserRound } from "lucide-react";
-import { useEffect, useRef } from "react";
-
+import { useEffect, useRef, useState } from "react";
+ 
 import { ChatMarkdown } from "@/components/chat/chat-markdown";
 import { CitationChips } from "@/components/chat/citation-chips";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -18,24 +18,70 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { ChatMessage, Repository } from "@/lib/api";
 import { cn } from "@/lib/utils";
-
+ 
+const THINKING_PHRASES = [
+  "Cora is thinking…",
+  "Reading the codebase…",
+  "Tracing the flow…",
+  "Connecting the pieces…",
+];
+ 
+function ThinkingIndicator() {
+  const [phraseIndex, setPhraseIndex] = useState(0);
+ 
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setPhraseIndex((i) => (i + 1) % THINKING_PHRASES.length);
+    }, 1600);
+    return () => clearInterval(interval);
+  }, []);
+ 
+  return (
+    <Message align="start">
+      <MessageAvatar>
+        <Avatar className="size-8">
+          <AvatarFallback className="bg-muted">
+            <Bot className="size-4" />
+          </AvatarFallback>
+        </Avatar>
+      </MessageAvatar>
+      <MessageContent>
+        <Bubble variant="muted" align="start">
+          <BubbleContent className="flex items-center gap-2 px-4 py-3">
+            <span className="flex gap-1">
+              <span className="size-1.5 animate-bounce rounded-full bg-foreground/50 [animation-delay:-0.3s]" />
+              <span className="size-1.5 animate-bounce rounded-full bg-foreground/50 [animation-delay:-0.15s]" />
+              <span className="size-1.5 animate-bounce rounded-full bg-foreground/50" />
+            </span>
+            <span className="text-sm text-muted-foreground transition-opacity duration-300">
+              {THINKING_PHRASES[phraseIndex]}
+            </span>
+          </BubbleContent>
+        </Bubble>
+      </MessageContent>
+    </Message>
+  );
+}
+ 
 export function ChatMessages({
   repo,
   messages,
   streamText,
+  isThinking,
   isLoading,
 }: {
   repo: Repository;
   messages: ChatMessage[];
   streamText?: string;
+  isThinking?: boolean;
   isLoading?: boolean;
 }) {
   const bottomRef = useRef<HTMLDivElement>(null);
-
+ 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, streamText]);
-
+  }, [messages, streamText, isThinking]);
+ 
   if (isLoading) {
     return (
       <div className="flex flex-1 flex-col gap-4 p-6">
@@ -45,7 +91,7 @@ export function ChatMessages({
       </div>
     );
   }
-
+ 
   return (
     <ScrollArea className="flex-1">
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-5 px-4 py-6">
@@ -58,7 +104,7 @@ export function ChatMessages({
             </p>
           </div>
         )}
-
+ 
         <MessageGroup>
           {messages.map((message) => {
             const isUser = message.role === "USER";
@@ -106,7 +152,9 @@ export function ChatMessages({
               </Message>
             );
           })}
-
+ 
+          {isThinking && <ThinkingIndicator />}
+ 
           {streamText && (
             <Message align="start">
               <MessageAvatar>
